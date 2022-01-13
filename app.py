@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from models import Todo, db
@@ -24,7 +25,26 @@ def index():
             return 'ERROR!'
     else:
         tasks= Todo.query.order_by(Todo.date_created).all()
-        return render_template('index.html', tasks= tasks)
+        tasks_pending= []
+        tasks_finished= []
+        for task in tasks:
+            if(task.is_finished):
+                tasks_finished.append(task)
+            else:
+                tasks_pending.append(task)
+        return render_template('index.html', tasks_finished= tasks_finished, tasks_pending=tasks_pending)
+
+@app.route('/finish/<int:id>')
+def finish(id):
+    task_to_finish= Todo.query.get_or_404(id)
+    task_to_finish.date_finished= datetime.utcnow()
+    task_to_finish.is_finished= True
+
+    try:
+        db.session.commit()
+        return redirect('/')
+    except:
+        return 'ERROR!'
 
 @app.route('/delete/<int:id>')
 def delete(id):
