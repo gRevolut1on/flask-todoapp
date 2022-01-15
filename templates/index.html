@@ -13,13 +13,15 @@ View Tasks
         <table>
             <tr>
                 <th>Task</th>
-                <th>Added</th>
+                <th>Created By</th>
+                <th>Added on</th>
                 <th></th>
                 <th>Actions</th>
             </tr>
             {% for task in tasks_pending %}
                 <tr>
                     <td>{{ task.content }}</td>
+                    <td>{{ task.user.username }}</td>
                     <td>{{ task.date_created }}</td>
                     <td>
                         <form action="/finish/{{ task.id }}">
@@ -43,13 +45,15 @@ View Tasks
         <table>
             <tr>
                 <th>Task</th>
-                <th>Added</th>
-                <th>Completed</th>
+                <th>Created By</th>
+                <th>Added on</th>
+                <th>Completed on</th>
                 <th>Actions</th>
             </tr>
             {% for task in tasks_finished %}
                 <tr>
                     <td>{{ task.content }}</td>
+                    <td>{{ task.user.username }}</td>
                     <td>{{ task.date_created }}</td>
                     <td>{{ task.date_finished }}</td>
                     <td>
@@ -66,4 +70,6 @@ View Tasks
         <input type= "submit" value= "Add Task">
     </form>
 </div>
+<a href="{{ url_for('profile') }}">Profile</a>
+<a href="{{ url_for('logout')}}">Logout</a>
 {% endblock %}
