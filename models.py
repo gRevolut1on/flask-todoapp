@@ -31,6 +31,7 @@ class Todo(db.Model):
     date_created= db.Column(db.DateTime, default=datetime.utcnow())
     date_finished= db.Column(db.DateTime, default= datetime.utcnow())
     is_finished= db.Column(db.Boolean, default= False)
+    is_pvt= db.Column(db.Boolean, default= False)
     user_id= db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user= db.relationship("UserModel", backref="tasks")
 

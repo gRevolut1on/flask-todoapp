@@ -1,4 +1,5 @@
 from datetime import datetime
+from operator import truediv
 from flask import Flask, render_template, request, redirect
 from models import UserModel, Todo, db, login
 from flask_login import login_required, current_user, login_user, logout_user
@@ -12,6 +13,7 @@ login.init_app(app)
 
 login.login_view= 'login'
 
+#initializing DB
 @app.before_first_request
 def create_table():
     db.create_all()
@@ -66,22 +68,31 @@ def logout():
     return redirect('/')
 
 #APPLICATION PROPER
-@app.route('/',methods=['POST','GET'])
+@app.route('/')
 @login_required
 def index():
+    tasks= Todo.query.filter((Todo.is_pvt==False) | (Todo.user==current_user)).order_by(Todo.date_created).all()
+    return render_template('index.html', tasks=tasks)
+
+@app.route('/dashboard', methods=['POST','GET'])
+@login_required
+def dashboard():
     if request.method=='POST':
         task_content= request.form['content']
         new_task= Todo(content=task_content)
         new_task.user= current_user
+        if "is_pvt" in request.form:
+            new_task.is_pvt= True
 
         try:
             db.session.add(new_task)
             db.session.commit()
-            return redirect('/')
+            return redirect('/dashboard')
         except:
             return 'ERROR!'
     else:
-        tasks= Todo.query.order_by(Todo.date_created).all()
+        user= UserModel.query.get_or_404(current_user.get_id())
+        tasks= user.tasks
         tasks_pending= []
         tasks_finished= []
         for task in tasks:
@@ -89,7 +100,7 @@ def index():
                 tasks_finished.append(task)
             else:
                 tasks_pending.append(task)
-        return render_template('index.html', tasks_finished= tasks_finished, tasks_pending=tasks_pending)
+        return render_template('dashboard.html', tasks_finished= tasks_finished, tasks_pending= tasks_pending)
 
 @app.route('/finish/<int:id>')
 @login_required
@@ -100,7 +111,7 @@ def finish(id):
 
     try:
         db.session.commit()
-        return redirect('/')
+        return redirect('/dashboard')
     except:
         return 'ERROR!'
 
@@ -112,7 +123,7 @@ def delete(id):
     try:
         db.session.delete(task_to_delete)
         db.session.commit()
-        return redirect('/')
+        return redirect('/dashboard')
     except:
         return 'ERROR!'
 
@@ -122,10 +133,14 @@ def update(id):
     task= Todo.query.get_or_404(id)
     if request.method == 'POST':
         task.content= request.form['content']
-
+        if("is_pvt" in request.form):
+            task.is_pvt= True
+        else:
+            task.is_pvt= False
+        
         try:
             db.session.commit()
-            return redirect('/')
+            return redirect('/dashboard')
         except:
             return 'ERROR!'
     else:
