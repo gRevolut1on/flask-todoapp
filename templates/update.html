@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block head %}
+Update Task
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h2>Update Task</h2>
+    <form action="/update/{{ task.id }}" method="POST">
+        <input type= "text" name= "content" id="content" value="{{ task.content }}">
+        {% if task.is_pvt %}
+            <input type="checkbox" name="is_pvt" checked>
+        {% else %}
+            <input type="checkbox" name="is_pvt">
+        {% endif %}
+        <label for="is_pvt">Private?</label>
+        <input type= "submit" value= "Update">
+    </form>
+</div>
+{% endblock %}

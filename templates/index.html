@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block head %}
+Home
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h3>Activity Board:</h3>
+    {% if tasks|length < 1 %}
+        <h2>Nothing to show</h2>
+    {% else %}
+        <table>
+            <tr>
+                <th>Task</th>
+                <th>Created By</th>
+                <th>Date Added</th>
+                <th>Date Finished</th>
+            </tr>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.content }}</td>
+                <td>{{ task.user.username }}</td>
+                <td>{{ task.date_created }}</td>
+                {% if task.is_finished %}
+                    <td>{{ task.date_finished }}</td>
+                {% else %}
+                    <td>PENDING</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</div>
+<a href="{{ url_for('profile') }}">Profile</a>
+<a href="{{ url_for('logout') }}">Logout</a>
+<a href="{{ url_for('dashboard') }}">Dashboard</a>
+{% endblock %}
